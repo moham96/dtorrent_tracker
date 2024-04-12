@@ -1,14 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:b_encode_decode/b_encode_decode.dart';
 import 'package:dtorrent_common/dtorrent_common.dart';
+import 'package:logging/logging.dart';
 import 'peer_event.dart';
 import 'http_tracker_base.dart';
 import 'tracker.dart';
+
+var _log = Logger('HttpTracker');
 
 /// Torrent http/https tracker implement.
 ///
@@ -201,8 +203,7 @@ class HttpTracker extends Tracker with HttpTrackerBase {
             try {
               event.addPeer(CompactAddress(address, port));
             } catch (e) {
-              log('parse peer address error',
-                  error: e, name: runtimeType.toString());
+              _log.warning('parse peer address error', e);
             }
           }
         }

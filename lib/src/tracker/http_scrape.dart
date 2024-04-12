@@ -1,13 +1,15 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:dtorrent_common/dtorrent_common.dart';
 import 'package:b_encode_decode/b_encode_decode.dart' as bencode;
+import 'package:logging/logging.dart';
 
 import 'scrape_event.dart';
 import 'http_tracker_base.dart';
 import 'scrape.dart';
+
+var _log = Logger('HttpScrape');
 
 ///
 /// Torrent http scrape.
@@ -82,7 +84,7 @@ class HttpScrape extends Scrape with HttpTrackerBase {
       var re = await httpGet(options);
       return re;
     } catch (e) {
-      log('Scrape Error : $url', error: e, name: runtimeType.toString());
+      _log.warning('Scrape Error : $url', e);
     } finally {
       await close();
     }

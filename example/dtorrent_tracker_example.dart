@@ -1,17 +1,24 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'package:dtorrent_common/dtorrent_common.dart';
 
 import 'package:dtorrent_parser/dtorrent_parser.dart';
 import 'package:dtorrent_tracker/dtorrent_tracker.dart';
+import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
 
 var scriptDir = path.dirname(Platform.script.path);
 var torrentsPath =
     path.canonicalize(path.join(scriptDir, '..', '..', '..', 'torrents'));
+
 void main() async {
+  var _log = Logger.root;
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    print(
+        '[${record.loggerName}] ${record.level.name}: ${record.time}: ${record.message}');
+  });
   var torrent =
       await Torrent.parse(path.join(torrentsPath, 'big-buck-bunny.torrent'));
 
@@ -28,8 +35,8 @@ void main() async {
     trackerListener
       ..on<AnnounceTrackerDisposedEvent>((event) {
         // if (reason != null && source is HttpTracker)
-        log('Tracker disposed  , remain ${torrentTracker.trackersNum} :',
-            error: event.reason);
+        _log.info('Tracker disposed  , remain ${torrentTracker.trackersNum} :',
+            event.reason);
       })
       ..on<AnnounceErrorEvent>(
         (event) {

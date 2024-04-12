@@ -1,9 +1,9 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dtorrent_common/dtorrent_common.dart';
+import 'package:logging/logging.dart';
 
 import 'peer_event.dart';
 
@@ -11,6 +11,8 @@ import 'udp_tracker_base.dart';
 import '../utils.dart';
 
 import 'tracker.dart';
+
+var _log = Logger('UDPTracker');
 
 /// UDP Tracker
 class UDPTracker extends Tracker with UDPTrackerBase {
@@ -100,8 +102,7 @@ class UDPTracker extends Tracker with UDPTrackerBase {
       }
     } catch (e) {
       // Error tolerance
-      log('Error parsing peer IP : $ips , ${ips.length}',
-          name: runtimeType.toString(), error: e);
+      _log.warning('Error parsing peer IP : $ips , ${ips.length}', e);
     }
     return event;
   }
