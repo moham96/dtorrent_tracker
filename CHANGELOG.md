@@ -45,3 +45,6 @@
 ## 1.3.17
 - use the new legal test torrents
 - update deps and sdk constraints
+
+## 1.3.18
+- use logging package
