@@ -195,16 +195,16 @@ class HttpTracker extends Tracker with HttpTrackerBase {
       }
     } else {
       if (value is List) {
-        for (var peer in value) {
-          var ip = peer['ip'];
-          var port = peer['port'];
-          var address = InternetAddress.tryParse(ip);
-          if (address != null) {
-            try {
+        for (final peer in value) {
+          try {
+            var ip = String.fromCharCodes(List<int>.from(peer['ip']));
+            var port = peer['port'] as int;
+            var address = InternetAddress.tryParse(ip);
+            if (address != null) {
               event.addPeer(CompactAddress(address, port));
-            } catch (e) {
-              _log.warning('parse peer address error', e);
             }
+          } catch (e) {
+            _log.warning('parse peer address error', e);
           }
         }
       }
