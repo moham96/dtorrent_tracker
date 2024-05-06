@@ -13,25 +13,26 @@ void main() {
 
     // setUp(() {});
 
-    test('_fillPeers with Uint8List', () {
-      final inputDataAsString = String.fromCharCodes(_uint8peersData);
+    test('_fillPeers with Uint8List (BEP0023 compact)', () {
+      final inputDataAsString = String.fromCharCodes(_bep0023compactPeersData);
       print('💡inputDataAsString: $inputDataAsString');
-      final decoded = decode(_uint8peersData) as Map;
-      print('💡decoded u8peers: $decoded');
+      final decoded = decode(_bep0023compactPeersData) as Map;
+      print('💡decoded BEP0023 compact peers: $decoded');
       expect(decoded['peers'] is Uint8List, true);
-      final res = httpTracker.processResponseData(_uint8peersData);
+      final res = httpTracker.processResponseData(_bep0023compactPeersData);
       expect(res.peers.isNotEmpty, true);
       expect(res.peers.length, 4);
       expect(res.interval, 3371);
       expect(res.minInterval, 3371);
     });
-    test('_fillPeers with List<Map>', () {
-      final inputDataAsString = String.fromCharCodes(_mapPeersData);
+    test('_fillPeers with List<Map> (BEP003 non compact)', () {
+      final inputDataAsString =
+          String.fromCharCodes(_bep003nonCompactPeersData);
       print('💡inputDataAsString: $inputDataAsString');
-      final decoded = decode(_mapPeersData) as Map;
-      print('💡decoded List peers: $decoded');
+      final decoded = decode(_bep003nonCompactPeersData) as Map;
+      print('💡decoded BEP003 non compact peers: $decoded');
       expect(decoded['peers'] is! Uint8List, true);
-      final res = httpTracker.processResponseData(_mapPeersData);
+      final res = httpTracker.processResponseData(_bep003nonCompactPeersData);
       expect(res.peers.isNotEmpty, true);
       expect(res.peers.length, 2);
       expect(res.complete, 0);
@@ -57,7 +58,7 @@ const _testAnnounce =
     'http://bt.t-ru.org/ann?pk=76a9f26aac4c1bdbe997327ae6e7a928';
 const _testInfoHashString = '9ebab45b516418b5309d97d7e1066f7e737822b1';
 
-final _uint8peersData = Uint8List.fromList([
+final _bep0023compactPeersData = Uint8List.fromList([
   100,
   56,
   58,
@@ -133,7 +134,7 @@ final _uint8peersData = Uint8List.fromList([
   101
 ]);
 
-final _mapPeersData = Uint8List.fromList([
+final _bep003nonCompactPeersData = Uint8List.fromList([
   100,
   56,
   58,
