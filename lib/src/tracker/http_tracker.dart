@@ -35,26 +35,6 @@ class HttpTracker extends Tracker with HttpTrackerBase {
   }
 
   @override
-  Future<PeerEvent?> stop([bool force = false]) async {
-    await close();
-    var f = super.stop(force);
-    return f;
-  }
-
-  @override
-  Future<PeerEvent?> complete() async {
-    await close();
-    var f = super.complete();
-    return f;
-  }
-
-  @override
-  Future dispose([dynamic reason]) async {
-    await close();
-    return super.dispose(reason);
-  }
-
-  @override
   Future<PeerEvent?> announce(String eventType, Map<String, dynamic> options) {
     _currentEvent =
         eventType; // save the current event, stop and complete will also call this method, so the current event type should be recorded here

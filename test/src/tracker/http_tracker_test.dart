@@ -1,18 +1,17 @@
 import 'dart:typed_data';
 
 import 'package:b_encode_decode/b_encode_decode.dart';
-import 'package:dtorrent_tracker/src/tracker/http_tracker.dart';
+import 'package:dtorrent_tracker/dtorrent_tracker.dart';
 import 'package:test/test.dart';
 
 void main() {
+  final uri = Uri.parse(_testAnnounce);
+  final infoHashBuffer = hexString2Buffer(_testInfoHashString)!;
+  final infoHashU8List = Uint8List.fromList(infoHashBuffer);
+  var httpTracker =
+      HttpTracker(uri, infoHashU8List, provider: _MockOptionsProvider());
+
   group('HttpTracker.processResponseData', () {
-    final uri = Uri.parse(_testAnnounce);
-    final infoHashBuffer = hexString2Buffer(_testInfoHashString)!;
-    final infoHashU8List = Uint8List.fromList(infoHashBuffer);
-    final httpTracker = HttpTracker(uri, infoHashU8List);
-
-    // setUp(() {});
-
     test('_fillPeers with Uint8List (BEP0023 compact)', () {
       final inputDataAsString = String.fromCharCodes(_bep0023compactPeersData);
       print('💡inputDataAsString: $inputDataAsString');
@@ -40,6 +39,20 @@ void main() {
       expect(res.interval, 20);
     });
   });
+
+  group('HttpTracker: Send EVENT_COMPLETED and EVENT_STOPPED to announce', () {
+    setUp(() => httpTracker =
+        HttpTracker(uri, infoHashU8List, provider: _MockOptionsProvider()));
+
+    test('Send EVENT_COMPLETED', () async {
+      final res = await httpTracker.complete();
+      expect(res != null, true);
+    });
+    test('Send EVENT_STOPPED', () async {
+      final res = await httpTracker.stop();
+      expect(res != null, true);
+    });
+  });
 }
 
 List<int>? hexString2Buffer(String hexStr) {
@@ -54,9 +67,24 @@ List<int>? hexString2Buffer(String hexStr) {
   return re;
 }
 
-const _testAnnounce =
-    'http://bt.t-ru.org/ann?pk=76a9f26aac4c1bdbe997327ae6e7a928';
-const _testInfoHashString = '9ebab45b516418b5309d97d7e1066f7e737822b1';
+class _MockOptionsProvider implements AnnounceOptionsProvider {
+  @override
+  Future<Map<String, dynamic>> getOptions(Uri uri, String infoHash) {
+    var map = {
+      'downloaded': 0,
+      'uploaded': 0,
+      'left': 16 * 1024 * 20,
+      'numwant': 50,
+      'compact': 1,
+      'peerId': '-DT0201-/8vC2ZjdAx5v',
+      'port': 6881,
+    };
+    return Future.value(map);
+  }
+}
+
+const _testAnnounce = 'http://nyaa.tracker.wf:7777/announce';
+const _testInfoHashString = '69efaf354530d8cd7eb4edf434b30d8353240cac';
 
 final _bep0023compactPeersData = Uint8List.fromList([
   100,
