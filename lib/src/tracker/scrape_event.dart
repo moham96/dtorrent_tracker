@@ -60,6 +60,6 @@ class ScrapeResult extends TrackerEventBase {
 
   @override
   String toString() {
-    return 'File($infoHash) : complete:$complete, incomplete:$incomplete, downloaded:$downloaded, name:$name${otherInfomationsMap.isEmpty ? '' : '\n${otherInfomationsMap.toString()}'}';
+    return 'File($infoHash) : complete:$complete, incomplete:$incomplete, downloaded:$downloaded, name:$name${otherInformationsMap.isEmpty ? '' : '\n${otherInformationsMap.toString()}'}';
   }
 }

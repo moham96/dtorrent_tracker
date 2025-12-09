@@ -25,6 +25,7 @@ class TorrentAnnounceTracker with EventsEmittable<TorrentAnnounceEvent> {
   AnnounceOptionsProvider provider;
 
   final Map<Tracker, List<dynamic>> _announceRetryTimers = {};
+  // Map structure: [Timer, retryCount]
 
   final int maxRetryTime;
 
@@ -176,17 +177,17 @@ class TorrentAnnounceTracker with EventsEmittable<TorrentAnnounceEvent> {
     if (isDisposed) return;
     var record = _announceRetryTimers.remove(event.source);
     if (event.source.isDisposed) return;
-    var times = 0;
+    var retryCount = 0;
     if (record != null) {
       (record[0] as Timer).cancel();
-      times = record[1];
+      retryCount = record[1] as int;
     }
-    if (times >= maxRetryTime) {
-      event.source.dispose('NO MORE RETRY ($times/$maxRetryTime)');
+    if (retryCount >= maxRetryTime) {
+      event.source.dispose('NO MORE RETRY ($retryCount/$maxRetryTime)');
       return;
     }
-    var reTime = (_retryAfter * pow(2, times) as int);
-    var timer = Timer(Duration(seconds: reTime), () {
+    var retryDelay = (_retryAfter * pow(2, retryCount) as int);
+    var timer = Timer(Duration(seconds: retryDelay), () {
       if (event.source.isDisposed || isDisposed) return;
       _unHookTracker(event.source);
       var url = event.source.announceUrl;
@@ -195,8 +196,8 @@ class TorrentAnnounceTracker with EventsEmittable<TorrentAnnounceEvent> {
       event.source.dispose();
       runTracker(url, infoHash);
     });
-    times++;
-    _announceRetryTimers[event.source] = [timer, times];
+    retryCount++;
+    _announceRetryTimers[event.source] = [timer, retryCount];
     events.emit(AnnounceErrorEvent(event.source, event.error));
   }
 

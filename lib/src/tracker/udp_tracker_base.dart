@@ -36,7 +36,7 @@ mixin UDPTrackerBase {
   RawDatagramSocket? _socket;
 
   /// Session ID. A group of 4 bytes represented as a byte buffer, randomly generated.
-  List<int>? _transcationId;
+  List<int>? _transactionId;
 
   /// Connection ID. After sending the first message to the remote, the remote
   ///  will return a connection ID, which needs to be carried when sending the
@@ -52,20 +52,32 @@ mixin UDPTrackerBase {
 
   bool get isClosed => _closed;
 
-  /// Obtain the current transcation ID, and return it if there is, indicating that the current communication has not ended. If not, regenerate
-  List<int>? get transcationId {
-    _transcationId ??= _generateTranscationId();
-    return _transcationId;
+  /// Obtain the current transaction ID, and return it if there is, indicating that the current communication has not ended. If not, regenerate
+  List<int>? get transactionId {
+    _transactionId ??= _generateTransactionId();
+    return _transactionId;
   }
 
-  /// Convert the trancation ID to a number
-  int get transcationIdNum {
-    return ByteData.view(Uint8List.fromList(transcationId!).buffer)
+  /// Obtain the current transcation ID, and return it if there is, indicating that the current communication has not ended. If not, regenerate
+  @Deprecated('Use transactionId instead')
+  List<int>? get transcationId {
+    return transactionId;
+  }
+
+  /// Convert the transaction ID to a number
+  int get transactionIdNum {
+    return ByteData.view(Uint8List.fromList(transactionId!).buffer)
         .getUint32(0);
   }
 
+  /// Convert the trancation ID to a number
+  @Deprecated('Use transactionIdNum instead')
+  int get transcationIdNum {
+    return transactionIdNum;
+  }
+
   /// Generate a random 4-byte buffer
-  List<int> _generateTranscationId() {
+  List<int> _generateTransactionId() {
     return randomBytes(4);
   }
 
@@ -85,7 +97,7 @@ mixin UDPTrackerBase {
     var list = <int>[];
     list.addAll(START_CONNECTION_ID); //This is a magic ID
     list.addAll(ACTION_CONNECT);
-    list.addAll(transcationId!);
+    list.addAll(transactionId!);
     var messageBytes = Uint8List.fromList(list);
     try {
       _sendMessage(messageBytes, address);
@@ -157,10 +169,9 @@ mixin UDPTrackerBase {
       List<CompactAddress> addresses) async {
     var message = generateSecondTouchMessage(connectionId, options);
     if (message.isEmpty) {
-      throw 'The sent data cannot be empty';
-    } else {
-      _sendMessage(message, addresses);
+      throw Exception('The sent data cannot be empty');
     }
+    _sendMessage(message, addresses);
   }
 
   /// Process the information read from the socket.
@@ -175,7 +186,7 @@ mixin UDPTrackerBase {
     }
     var view = ByteData.view(data.buffer);
     var tid = view.getUint32(4);
-    if (tid == transcationIdNum) {
+    if (tid == transactionIdNum) {
       var action = view.getUint32(0);
       // Indicates a successful connection, and announce can be performed.
       if (action == 0) {
@@ -189,9 +200,11 @@ mixin UDPTrackerBase {
       if (action == 3) {
         var errorMsg = 'Unknown error';
         try {
-          errorMsg = String.fromCharCodes(data.sublist(8));
+          if (data.length > 8) {
+            errorMsg = String.fromCharCodes(data.sublist(8));
+          }
         } catch (e) {
-          //
+          // If we can't parse the error message, use the default
         }
         if (!completer.isCompleted) {
           completer.completeError(errorMsg);
@@ -202,14 +215,19 @@ mixin UDPTrackerBase {
       // Announce receives the returned result
       try {
         var result = processResponseData(data, action, address);
-        completer.complete(result);
+        if (!completer.isCompleted) {
+          completer.complete(result);
+        }
       } catch (e) {
-        completer.completeError('Response Announce Result Data error');
+        if (!completer.isCompleted) {
+          completer.completeError(
+              'Response Announce Result Data error: ${e.toString()}');
+        }
       }
       close();
     } else {
       if (!completer.isCompleted) {
-        completer.completeError('Transacation ID incorrect');
+        completer.completeError('Transaction ID incorrect');
       }
       await close();
     }
@@ -225,14 +243,26 @@ mixin UDPTrackerBase {
 
   /// Send a data packet to a specific IP address
   void _sendMessage(Uint8List message, List<CompactAddress> addresses) {
-    if (isClosed) return;
+    if (isClosed || _socket == null) return;
     var success = false;
     for (var element in addresses) {
-      var bytes = _socket?.send(message, element.address, element.port);
-      if (bytes != 0) success = true;
+      try {
+        var bytes = _socket!.send(message, element.address, element.port);
+        if (bytes > 0) {
+          success = true;
+          break; // Successfully sent, no need to try other addresses
+        }
+      } catch (e) {
+        // Continue trying other addresses
+      }
     }
-    if (!success) {
-      Timer.run(() => _sendMessage(message, addresses));
+    if (!success && !isClosed) {
+      // Retry sending if it failed
+      Timer.run(() {
+        if (!isClosed) {
+          _sendMessage(message, addresses);
+        }
+      });
     }
   }
 }

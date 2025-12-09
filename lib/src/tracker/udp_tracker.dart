@@ -56,7 +56,7 @@ class UDPTracker extends Tracker with UDPTrackerBase {
 
     list.addAll(
         ACTION_ANNOUNCE); // The type of Action is currently 'announce', which is represented as 1.
-    list.addAll(transcationId!); // Session id
+    list.addAll(transactionId!); // Session id
     list.addAll(infoHashBuffer);
     list.addAll(utf8.encode(options['peerId']));
     list.addAll(num2Uint64List(options['downloaded']));
@@ -95,7 +95,7 @@ class UDPTracker extends Tracker with UDPTrackerBase {
           event.addPeer(c);
         }
       } else if (type == InternetAddressType.IPv6) {
-        var list = CompactAddress.parseIPv4Addresses(ips);
+        var list = CompactAddress.parseIPv6Addresses(ips);
         for (var c in list) {
           event.addPeer(c);
         }

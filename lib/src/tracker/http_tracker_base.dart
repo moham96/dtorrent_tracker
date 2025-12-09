@@ -86,16 +86,13 @@ mixin HttpTrackerBase {
       }
       return previousValue;
     });
-    // if (_queryStr.isNotEmpty) _queryStr = _queryStr.substring(1); scrape
-    var str = _rawUrl;
-    str = '${url.origin}${url.path}?';
-    if (!str.contains('?')) str += '?';
-    str += queryStr;
-    return str;
-  }
-
-  String get _rawUrl {
-    return '${url.origin}${url.path}';
+    // Remove leading '&' from query string
+    if (queryStr.isNotEmpty && queryStr.startsWith('&')) {
+      queryStr = queryStr.substring(1);
+    }
+    var baseUrl = '${url.origin}${url.path}';
+    var separator = url.hasQuery ? '&' : '?';
+    return '$baseUrl$separator$queryStr';
   }
 
   ///
@@ -145,6 +142,15 @@ mixin HttpTrackerBase {
       _request?.abort();
       _request = await _httpClient?.getUrl(uri);
       var response = await _request?.close();
+
+      if (response == null) {
+        throw Exception('Failed to get HTTP response');
+      }
+
+      if (response.statusCode != 200) {
+        throw Exception(
+            'HTTP request failed with status code: ${response.statusCode}');
+      }
 
       var datas = await _receiveResponseData(response);
       await _clear();

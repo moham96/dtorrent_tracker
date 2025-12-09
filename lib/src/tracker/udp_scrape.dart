@@ -28,7 +28,7 @@ class UDPScrape extends Scrape with UDPTrackerBase {
     list.addAll(connectionId);
     list.addAll(
         ACTION_SCRAPE); // The type of Action is currently 'scrap,' which is represented as 2.
-    list.addAll(transcationId!); // Session ID.
+    list.addAll(transactionId!); // Session ID.
     var infos = infoHashSet;
     if (infos.isEmpty) throw Exception('Infohash cannot be empty.');
     for (var info in infos) {

@@ -2,7 +2,8 @@
 class TrackerEventBase {
   final Map _others = {};
 
-  Map get otherInfomationsMap {
+  /// Get other information map
+  Map get otherInformationsMap {
     return _others;
   }
 

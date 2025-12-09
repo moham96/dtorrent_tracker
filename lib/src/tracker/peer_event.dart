@@ -69,8 +69,8 @@ class PeerEvent extends TrackerEventBase {
     } else {
       str += 'Peers List is empty \n';
     }
-    if (otherInfomationsMap.isNotEmpty) {
-      str += '$otherInfomationsMap';
+    if (otherInformationsMap.isNotEmpty) {
+      str += '$otherInformationsMap';
     }
     return str;
   }
