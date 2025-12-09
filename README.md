@@ -2,6 +2,8 @@
 
 Dart implementation of a BitTorrent Http/Https and UDP tracker/scrape client
 
+[![codecov](https://codecov.io/gh/moham96/dtorrent_tracker/branch/main/graph/badge.svg)](https://codecov.io/gh/moham96/dtorrent_tracker)
+
 ## Support
 - [BEP 0003 HTTP/HTTPS Tracker/Scrape](https://www.bittorrent.org/beps/bep_0003.html)
 - [BEP 0015 UDP Tracker/Scrape](https://www.bittorrent.org/beps/bep_0015.html)
@@ -78,3 +80,25 @@ scrapeTracker.scrape(torrent.infoHashBuffer).listen((event) {
 });
 ```
 The method `scrape` need a infoHashbuffer as the parameter and return a `Stream` , user can listen the `Stream` event to get the result.
+
+## Testing
+
+Run tests:
+```bash
+dart test
+```
+
+Run tests with coverage:
+```bash
+dart test --coverage=coverage
+dart run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
+```
+
+Or use the provided script:
+```bash
+dart tool/coverage.dart
+```
+
+The coverage report will be generated at `coverage/lcov.info` and can be viewed with tools like `genhtml` or uploaded to services like Codecov.
+
+Coverage is automatically uploaded to [Codecov](https://codecov.io) on every push and pull request via GitHub Actions.

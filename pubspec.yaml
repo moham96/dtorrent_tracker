@@ -18,3 +18,4 @@ dev_dependencies:
   test: ^1.24.3
   dtorrent_parser: ^1.0.8
   path: ^1.8.3
+  coverage: ^1.15.0
