@@ -90,9 +90,15 @@ mixin HttpTrackerBase {
     if (queryStr.isNotEmpty && queryStr.startsWith('&')) {
       queryStr = queryStr.substring(1);
     }
+    if (url.hasQuery && url.query.isNotEmpty) {
+      if (queryStr.isNotEmpty) {
+        queryStr = '${url.query}&$queryStr';
+      } else {
+        queryStr = url.query;
+      }
+    }
     var baseUrl = '${url.origin}${url.path}';
-    var separator = url.hasQuery ? '&' : '?';
-    return '$baseUrl$separator$queryStr';
+    return '$baseUrl?$queryStr';
   }
 
   ///
