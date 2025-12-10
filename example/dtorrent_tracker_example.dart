@@ -19,8 +19,8 @@ void main() async {
     print(
         '[${record.loggerName}] ${record.level.name}: ${record.time}: ${record.message}');
   });
-  var torrent =
-      await Torrent.parse(path.join(torrentsPath, 'big-buck-bunny.torrent'));
+  var torrent = await Torrent.parseFromFile(
+      path.join(torrentsPath, 'big-buck-bunny.torrent'));
 
   var id = generatePeerId();
   var port = 55551;

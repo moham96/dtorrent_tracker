@@ -48,3 +48,12 @@
 
 ## 1.3.18
 - use logging package
+
+## 1.3.19
+- Fix HTTP peer IP parsing
+- Fix query string handling in HttpTrackerBase to correctly append existing query parameters (private trackers)
+- Improve error handling and code clarity in tracker classes
+- Add comprehensive test coverage
+- Add Codecov configuration and CI workflow
+- Add Dependabot configuration for automated dependency updates
+- Update dtorrent_parser dependency to ^1.0.9
