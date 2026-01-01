@@ -135,7 +135,7 @@ abstract class Tracker with EventsEmittable<TrackerEvent> {
     return true;
   }
 
-  Future dispose([dynamic reason]) async {
+  Future<void> dispose([dynamic reason]) async {
     if (_disposed) return;
     events.dispose();
     _disposed = true;
